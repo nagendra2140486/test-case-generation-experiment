@@ -89,9 +89,12 @@ SYSTEM_PROMPT = (
 
 
 # ── GENERATOR FUNCTION ✅
-def generate_test_cases(user_story, model, context):
+def generate_test_cases(user_story: str, model: str, context: str) -> dict:
 
     start_time = time.time()
+
+    # ✅ ADD THIS
+    wall_start = datetime.utcnow().isoformat() + "Z"
 
     try:
         response = client.chat(
@@ -103,27 +106,35 @@ def generate_test_cases(user_story, model, context):
             options={"temperature": 0.2, "num_predict": 700}
         )
 
+        # ✅ ADD THIS
+        wall_end = datetime.utcnow().isoformat() + "Z"
+
         content = ""
         if hasattr(response, "message") and response.message:
             content = response.message.content
         elif hasattr(response, "response"):
             content = response.response
 
-        # ✅ token calc
-        input_tokens = max(len(context)//4, 50)
-        output_tokens = max(len(content)//4, 20)
+        # ✅ TOKEN LOGIC (KEEP)
+        input_tokens = len(context) // 4
+        output_tokens = len(content) // 4
         total_tokens = input_tokens + output_tokens
 
-        # ✅ time
+        # ✅ TIME
         total_duration_ms = (time.time() - start_time) * 1000
 
-        # ✅ throughput
+        # ✅ THROUGHPUT
         tokens_per_sec = round(total_tokens / (total_duration_ms / 1000), 2) if total_duration_ms > 0 else 0
 
+        # ✅ FINAL RETURN (IMPORTANT)
         return {
             "content": content,
             "metrics": {
+                "wall_start": wall_start,        # ✅ IMPORTANT
+                "wall_end": wall_end,            # ✅ IMPORTANT
                 "total_tokens": total_tokens,
+                "prompt_tokens": input_tokens,
+                "completion_tokens": output_tokens,
                 "total_duration_ms": total_duration_ms,
                 "tokens_per_sec": tokens_per_sec
             }
@@ -139,7 +150,6 @@ def generate_test_cases(user_story, model, context):
                 "tokens_per_sec": 0
             }
         }
-
 # ── RUN EXPERIMENT ───────────────────────────────────
 def run_analysis(model):
 
