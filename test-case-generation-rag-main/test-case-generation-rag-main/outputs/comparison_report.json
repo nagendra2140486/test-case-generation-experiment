@@ -1,0 +1,22 @@
+{
+  "tokens": {
+    "BRD": 74770,
+    "Chunking": 23266
+  },
+  "time_ms": {
+    "BRD": 21380.19871711731,
+    "Chunking": 25959.168672561646
+  },
+  "cpu": {
+    "BRD": 5.57,
+    "Chunking": 4.33
+  },
+  "gpu": {
+    "BRD": null,
+    "Chunking": null
+  },
+  "energy_wh": {
+    "BRD": 0.2969,
+    "Chunking": 0.3605
+  }
+}
