@@ -1,16 +1,23 @@
 import json
 import time
-from datetime import datetime
 import ollama
 from docx import Document
 
+# ── CONFIG ───────────────────────────
 OLLAMA_HOST = "http://10.120.100.16/ollama"
-# ── DOCX READER ─────────────────────────
+API_KEY = "sk-xxxxxxxxxxxxxxxx"   # ✅ PUT YOUR REAL KEY HERE
+
+client = ollama.Client(
+    host=OLLAMA_HOST,
+    headers={"Authorization": f"Bearer {API_KEY}"}
+)
+
+# ── DOCX READER ─────────────────────
 def read_docx(file_path):
     doc = Document(file_path)
     return "\n".join([p.text.strip() for p in doc.paragraphs if p.text.strip()])
 
-# ── CHUNKING ───────────────────────────
+# ── CHUNKING ─────────────────────────
 def get_chunk_context(user_story: str):
     story = user_story.lower()
 
@@ -27,44 +34,27 @@ def get_chunk_context(user_story: str):
     else:
         return read_docx("data/07_global_concerns.docx")
 
-# ── CONFIG ───────────────────────────
-client = ollama.Client(
-    host=OLLAMA_HOST,
-    headers={"Authorization": f"Bearer {API_KEY}"}
-)
-
-
-MODELS = ["llama3.2:latest"]
-
+# ── DATA ─────────────────────────────
 TEXTS = [
-    "US-01: As a new user, I want to register using my mobile number so that I can create an account.",
-    "US-02: As a user, I want to login using PIN so that I can access my wallet.",
-    "US-03: As a user, I want to link a card so that I can add funds.",
-    "US-04: As a user, I want to add money to wallet so that I can use it.",
-    "US-05: As a user, I want to send money to another user so that I can transfer funds.",
-    "US-06: As a user, I want to receive money so that I can accept transfers.",
-    "US-07: As a user, I want to scan QR code so that I can pay merchants.",
-    "US-08: As a user, I want to view transaction history so that I can track spending.",
-    "US-09: As a user, I want to get notifications so that I am aware of activities.",
-    "US-10: As a user, I want to withdraw money so that I can move funds to bank.",
-    "US-11: As a user, I want secure authentication so that my account is protected.",
-    "US-12: As a user, I want export data so that I can download statements.",
+    "US-01: Register using mobile number",
+    "US-02: Login using PIN",
+    "US-03: Link card",
+    "US-04: Add money",
+    "US-05: Send money",
 ]
 
 FULL_BRD_CONTEXT = read_docx("data/01_BRD_SwiftPay_v2.docx")[:4000]
 
-SYSTEM_PROMPT = "Generate test cases."
-
-# ── CORE FUNCTION ─────────────────────
+# ── CORE FUNCTION ───────────────────
 def generate(user_story, context):
 
     start = time.time()
 
     try:
         response = client.chat(
-            model=MODELS[0],
+            model="llama3.2:latest",
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": "Generate test cases."},
                 {"role": "user", "content": context + "\n" + user_story}
             ],
             options={"num_predict": 700}
@@ -83,25 +73,26 @@ def generate(user_story, context):
             "time": duration
         }
 
-    except:
+    except Exception as e:
+        print("Error:", e)
         return {"tokens": 0, "time": 0}
 
-# ── RUN ───────────────────────────────
+# ── MAIN ────────────────────────────
 def main():
 
     results = []
 
     for story in TEXTS:
-
         A = generate(story, FULL_BRD_CONTEXT)
         B = generate(story, get_chunk_context(story))
 
         results.append({
+            "user_story": story,
             "path_A": A,
             "path_B": B
         })
 
-    with open("outputs/experiment_results.json", "w") as f:
+    with open("outputs/experiment_results.json", "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
 
     print("✅ Generator Done")
