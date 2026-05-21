@@ -4,6 +4,7 @@ from datetime import datetime
 import ollama
 from docx import Document
 
+OLLAMA_HOST = "http://10.120.100.16/ollama"
 # ── DOCX READER ─────────────────────────
 def read_docx(file_path):
     doc = Document(file_path)
