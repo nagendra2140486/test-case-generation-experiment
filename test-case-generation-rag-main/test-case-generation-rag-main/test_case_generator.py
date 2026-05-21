@@ -1,147 +1,309 @@
+"""
+Sentiment analysis using Ollama SLMs via Open WebUI proxy.
+Scores 50 text samples across multiple models and saves results to JSON.
+"""
+
 import json
 import time
 from datetime import datetime
 import ollama
 from docx import Document
 
-# ── DOCX READER ─────────────────────────────────────
+# reading the docx file
 def read_docx(file_path):
     doc = Document(file_path)
-    return "\n".join([p.text.strip() for p in doc.paragraphs if p.text.strip()])
+    full_text = []
 
-# ── CHUNK RETRIEVAL ─────────────────────────────────
+    for para in doc.paragraphs:
+        text = para.text.strip()
+        if text:
+            full_text.append(text)
+
+    return "\n".join(full_text)
+## chunking document reading only necessary for the userstory
 def get_chunk_context(user_story: str):
-    story = str(user_story).lower()
+    try:
+        story = str(user_story).lower()
+    except:
+        story = ""
 
-    if "register" in story:
-        return read_docx("data/01_user_onboarding.docx") + "\n\n" + read_docx("data/07_global_concerns.docx")
+    # ────────── USER ONBOARDING ──────────
+    if "register" in story or "onboard" in story:
+        return read_docx("data/01_user_onboarding.docx") + "\n\n" + \
+               read_docx("data/07_global_concerns.docx")
 
+    # ────────── AUTHENTICATION ──────────
     elif "login" in story or "secure" in story:
-        return read_docx("data/02_authentication.docx") + "\n\n" + read_docx("data/07_global_concerns.docx")
+        return read_docx("data/02_authentication.docx") + "\n\n" + \
+               read_docx("data/07_global_concerns.docx")
 
-    elif "card" in story or "wallet" in story:
-        return read_docx("data/03_wallet_and_cards.docx") + "\n\n" + read_docx("data/07_global_concerns.docx")
+    # ────────── WALLET / CARDS ──────────
+    elif "card" in story or "wallet" in story or "add money" in story:
+        return read_docx("data/03_wallet_and_cards.docx") + "\n\n" + \
+               read_docx("data/07_global_concerns.docx")
 
-    elif "send money" in story or "transfer" in story:
-        return read_docx("data/04_p2p_transfers.docx") + "\n\n" + read_docx("data/07_global_concerns.docx")
+    # ────────── P2P TRANSFERS ──────────
+    elif "send money" in story or "transfer" in story or "receive money" in story:
+        return read_docx("data/04_p2p_transfers.docx") + "\n\n" + \
+               read_docx("data/07_global_concerns.docx")
 
-    elif "qr" in story or "merchant" in story:
-        return read_docx("data/05_merchant_payments.docx") + "\n\n" + read_docx("data/07_global_concerns.docx")
+    # ────────── MERCHANT PAYMENTS ──────────
+    elif "qr" in story or "merchant" in story or "payment" in story:
+        return read_docx("data/05_merchant_payments.docx") + "\n\n" + \
+               read_docx("data/07_global_concerns.docx")
 
+    # ────────── HISTORY / NOTIFICATIONS ──────────
     elif "history" in story or "notification" in story or "export" in story:
-        return read_docx("data/06_history_and_notifications.docx") + "\n\n" + read_docx("data/07_global_concerns.docx")
+        return read_docx("data/06_history_and_notifications.docx") + "\n\n" + \
+               read_docx("data/07_global_concerns.docx")
 
+    # ────────── DEFAULT (fallback) ──────────
     else:
         return read_docx("data/07_global_concerns.docx")
-
-# ── CONFIG ──────────────────────────────────────────
+# ── CONFIG ────────────────────────────────────────────────────────────────────
 OLLAMA_HOST = "http://10.120.100.16/ollama"
-API_KEY = "sk-your-key-here"
+API_KEY     = "sk-your-key-here"   # Open WebUI: Settings → Account → API Keys
 
-MODELS = ["llama3.2:latest"]
-
-TEXTS = [
-    "US-01: Register user",
-    "US-02: Login user",
-    "US-03: Link card",
-    "US-04: Add money",
-    "US-05: Send money",
-    "US-06: Receive money",
-    "US-07: Pay via QR",
-    "US-08: View history",
-    "US-09: Notifications",
-    "US-10: Withdraw money",
-    "US-11: Secure auth",
-    "US-12: Export data",
+# SLM vs LLM comparison pair — change these to try different combos
+MODELS = [
+    "llama3.2:latest",   # SLM — 3.2B parameters
+    "llama3.3:70b",      # LLM — 70.6B parameters
 ]
 
+# ── 50 SAMPLE TEXTS ──────────────────────────────────────────────────────────
+
+TEXTS = [
+    "US-01: As a new user, I want to register using my mobile number so that I can create an account.",
+    "US-02: As a user, I want to login using PIN so that I can access my wallet.",
+    "US-03: As a user, I want to link a card so that I can add funds.",
+    "US-04: As a user, I want to add money to wallet so that I can use it.",
+    "US-05: As a user, I want to send money to another user so that I can transfer funds.",
+    "US-06: As a user, I want to receive money so that I can accept transfers.",
+    "US-07: As a user, I want to scan QR code so that I can pay merchants.",
+    "US-08: As a user, I want to view transaction history so that I can track spending.",
+    "US-09: As a user, I want to get notifications so that I am aware of activities.",
+    "US-10: As a user, I want to withdraw money so that I can move funds to bank.",
+    "US-11: As a user, I want secure authentication so that my account is protected.",
+    "US-12: As a user, I want export data so that I can download statements.",
+]
+
+# ── CONTEXTS ──────────────────────────────────────────────────────────────────
+
+# ✅ Path A → FULL BRD
 FULL_BRD_CONTEXT = read_docx("data/01_BRD_SwiftPay_v2.docx")
 
-SYSTEM_PROMPT = """
-You are a QA Engineer. Generate test cases with:
-- Positive
-- Negative
-- Edge cases
-- NFR scenarios
 
-Each test should include:
-Test ID, Title, Steps, Expected Result.
-"""
+SYSTEM_PROMPT = (
+    "You are a senior Quality Engineer.\n"
+    "Based on the requirements context and user story, generate detailed test cases.\n\n"
+    "You must cover:\n"
+    "- Positive scenarios\n"
+    "- Negative scenarios\n"
+    "- Edge cases\n"
+    "- Non-functional scenarios (security, performance, compliance)\n\n"
+    "Each test case must include:\n"
+    "- Test ID\n"
+    "- Title\n"
+    "- Preconditions\n"
+    "- Test Steps (numbered)\n"
+    "- Expected Result\n"
+    "- Priority (High/Medium/Low)\n"
+    "- Type (Positive/Negative/Edge/NFR)\n\n"
+    "Important:\n"
+    "- Always consider cross-cutting rules like KYC limits, authentication rules, security and transaction rules.\n"
+    "- Return ONLY the test cases (no extra explanation).\n"
+)
 
-client = ollama.Client(host=OLLAMA_HOST, headers={"Authorization": f"Bearer {API_KEY}"})
+# ── CLIENT ────────────────────────────────────────────────────────────────────
+client = ollama.Client(
+    host=OLLAMA_HOST,
+    headers={"Authorization": f"Bearer {API_KEY}"},
+)
 
-# ── CORE FUNCTION ───────────────────────────────────
-def generate_test_cases(user_story, model, context):
+
+def list_available_models() -> list[str]:
+    """Return model names from Ollama via SDK."""
+    response = client.list()
+    return [m.model for m in response.models]
+
+
+def generate_test_cases(user_story: str, model: str, context: str) -> dict:
     start_time = time.time()
     wall_start = datetime.utcnow().isoformat() + "Z"
 
-    response = client.chat(
-        model=model,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"{context}\n\n{user_story}"},
-        ]
-    )
+    try:
+        response = client.chat(
+            model=model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {
+                    "role": "user",
+                    "content": f"""
+REQUIREMENTS CONTEXT:
+{context}
 
-    content = response.message.content
-    wall_end = datetime.utcnow().isoformat() + "Z"
-
-    # ✅ fallback tokens
-    input_tokens = len(context) // 4
-    output_tokens = len(content) // 4
-    total_tokens = input_tokens + output_tokens
-
-    # ✅ fallback time
-    total_duration_ms = round((time.time() - start_time) * 1000, 2)
-
-    tokens_per_sec = round(total_tokens / (total_duration_ms / 1000), 2)
-
-    return {
-        "content": content,
-        "metrics": {
-            "wall_start": wall_start,
-            "wall_end": wall_end,
-            "total_tokens": total_tokens,
-            "total_duration_ms": total_duration_ms,
-            "tokens_per_sec": tokens_per_sec
-        }
-    }
-
-# ── RUN EXPERIMENT ──────────────────────────────────
-def main():
-    all_results = []
-
-    for model in MODELS:
-        print(f"\nMODEL: {model}")
-
-        for i, story in enumerate(TEXTS, 1):
-
-            # Path A
-            res_A = generate_test_cases(story, model, FULL_BRD_CONTEXT)
-
-            # Path B
-            chunk_context = get_chunk_context(story)
-            res_B = generate_test_cases(story, model, chunk_context)
-
-            entry = {
-                "user_story": story,
-                "path_A": res_A,
-                "path_B": res_B,
-                "comparison": {
-                    "token_diff": res_A["metrics"]["total_tokens"] - res_B["metrics"]["total_tokens"]
+USER STORY:
+{user_story}
+"""
                 }
+            ],
+            options={"temperature": 0.2, "num_predict": 2000},
+        )
+
+        wall_end = datetime.utcnow().isoformat() + "Z"
+
+        content = response.message.content if response.message else ""
+
+        # ✅ Try real metrics (may not exist in OpenWebUI)
+        eval_count   = getattr(response, "eval_count", None)
+        prompt_count = getattr(response, "prompt_eval_count", None)
+        total_dur_ns = getattr(response, "total_duration", None)
+
+        # ✅ ✅ FALLBACK TOKEN CALCULATION
+        if not eval_count and not prompt_count:
+            input_tokens = len(context) // 4
+            output_tokens = len(content) // 4
+        else:
+            input_tokens = prompt_count or 0
+            output_tokens = eval_count or 0
+
+        total_tokens = input_tokens + output_tokens
+
+        # ✅ ✅ FALLBACK TIME
+        if total_dur_ns and total_dur_ns > 0:
+            total_duration_ms = round(total_dur_ns / 1e6, 2)
+        else:
+            total_duration_ms = round((time.time() - start_time) * 1000, 2)
+
+        # ✅ ✅ CORRECT THROUGHPUT
+        tokens_per_sec = round(total_tokens / (total_duration_ms / 1000), 2) if total_duration_ms > 0 else 0
+
+        return {
+            "content": content,
+            "metrics": {
+                "wall_start": wall_start,
+                "wall_end": wall_end,
+                "total_tokens": total_tokens,
+                "prompt_tokens": input_tokens,
+                "completion_tokens": output_tokens,
+                "total_duration_ms": total_duration_ms,
+                "tokens_per_sec": tokens_per_sec
             }
+        }
 
-            all_results.append(entry)
+    except Exception as e:
+        return {
+            "content": "error",
+            "metrics": {
+                "total_tokens": 0,
+                "total_duration_ms": 0,
+                "tokens_per_sec": 0
+            },
+            "error": str(e)
+        }
 
-            print(f"{i} A {res_A['metrics']['total_tokens']} tokens")
-            print(f"{i} B {res_B['metrics']['total_tokens']} tokens")
 
-    # ✅ save output
+# ── RUN EXPERIMENT ───────────────────────────────────
+
+def run_analysis(model: str) -> list[dict]:
+
+    results = []
+
+    print(f"\n{'='*80}")
+    print(f"  Model: {model}")
+    print(f"{'='*80}")
+    print(f"{'#':<4} {'Path':<6} {'Tokens':<10} {'Time(ms)':<10} {'Tok/s':<10} User Story")
+    print("-" * 80)
+
+    for i, story in enumerate(TEXTS, 1):
+
+        # ✅ Path A
+        result_a = generate_test_cases(story, model, FULL_BRD_CONTEXT)
+        mA = result_a.get("metrics", {})
+
+        # ✅ Path B (dynamic chunk)
+        chunk_context = get_chunk_context(story)
+        result_b = generate_test_cases(story, model, chunk_context)
+        mB = result_b.get("metrics", {})
+
+        # ✅ Comparison
+        comparison = {
+            "token_diff": mA.get("total_tokens", 0) - mB.get("total_tokens", 0),
+            "latency_diff_ms": mA.get("total_duration_ms", 0) - mB.get("total_duration_ms", 0)
+        }
+
+        entry = {
+            "user_story": story,
+            "path_A": result_a,
+            "path_B": result_b,
+            "comparison": comparison
+        }
+
+        results.append(entry)
+
+        # ✅ Print live
+        print(f"{i:<4} A      {mA.get('total_tokens',0):<10} {mA.get('total_duration_ms',0):<10} {mA.get('tokens_per_sec',0):<10} {story[:40]}")
+        print(f"{i:<4} B      {mB.get('total_tokens',0):<10} {mB.get('total_duration_ms',0):<10} {mB.get('tokens_per_sec',0):<10} {'-'}")
+
+    return results
+
+
+# ── SUMMARY ──────────────────────────────────────────
+
+def print_summary(model: str, results: list[dict]):
+
+    total_A = total_B = 0
+    time_A = time_B = 0
+
+    for r in results:
+        mA = r["path_A"]["metrics"]
+        mB = r["path_B"]["metrics"]
+
+        total_A += mA.get("total_tokens", 0)
+        total_B += mB.get("total_tokens", 0)
+
+        time_A += mA.get("total_duration_ms", 0)
+        time_B += mB.get("total_duration_ms", 0)
+
+    print("\n" + "="*60)
+    print(f" SUMMARY — {model}")
+    print("="*60)
+
+    print("\n📊 Tokens")
+    print(f"Path A: {total_A}")
+    print(f"Path B: {total_B}")
+    print(f"Saved : {total_A - total_B} ✅")
+
+    print("\n⏱ Time")
+    print(f"A: {time_A}")
+    print(f"B: {time_B}")
+
+    energy_A = total_A * 0.00013
+    energy_B = total_B * 0.00013
+
+    print("\n🌱 Energy")
+    print(f"A: {round(energy_A,6)} Wh")
+    print(f"B: {round(energy_B,6)} Wh")
+
+
+# ── MAIN ─────────────────────────────────────────────
+
+def main():
+
+    print("=" * 70)
+    print(" RAG TEST CASE GENERATION EXPERIMENT")
+    print("=" * 70)
+
+    results = run_analysis(MODELS[0])
+
+    print_summary(MODELS[0], results)
+
+    # ✅ SAVE TO OUTPUTS FOLDER
     with open("outputs/experiment_results.json", "w") as f:
-        json.dump(all_results, f, indent=2)
+        json.dump(results, f, indent=2)
 
-    print("\n✅ Experiment complete")
+    print("\n✅ Results saved in outputs/experiment_results.json")
+
 
 if __name__ == "__main__":
     main()
