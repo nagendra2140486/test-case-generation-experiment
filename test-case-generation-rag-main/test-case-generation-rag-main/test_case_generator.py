@@ -39,11 +39,18 @@ def get_chunk_context(user_story: str):
 MODELS = ["llama3.2:latest"]
 
 TEXTS = [
-    "US-01: Register user",
-    "US-02: Login user",
-    "US-03: Link card",
-    "US-04: Add money",
-    "US-05: Send money"
+    "US-01: As a new user, I want to register using my mobile number so that I can create an account.",
+    "US-02: As a user, I want to login using PIN so that I can access my wallet.",
+    "US-03: As a user, I want to link a card so that I can add funds.",
+    "US-04: As a user, I want to add money to wallet so that I can use it.",
+    "US-05: As a user, I want to send money to another user so that I can transfer funds.",
+    "US-06: As a user, I want to receive money so that I can accept transfers.",
+    "US-07: As a user, I want to scan QR code so that I can pay merchants.",
+    "US-08: As a user, I want to view transaction history so that I can track spending.",
+    "US-09: As a user, I want to get notifications so that I am aware of activities.",
+    "US-10: As a user, I want to withdraw money so that I can move funds to bank.",
+    "US-11: As a user, I want secure authentication so that my account is protected.",
+    "US-12: As a user, I want export data so that I can download statements.",
 ]
 
 FULL_BRD_CONTEXT = read_docx("data/01_BRD_SwiftPay_v2.docx")[:4000]
