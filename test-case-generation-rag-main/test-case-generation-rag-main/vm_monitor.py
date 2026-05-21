@@ -119,5 +119,60 @@ def print_summary(rows):
 
 
 # ── MAIN ───────────────────────────────
+# ── MAIN ───────────────────────────────
 def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--interval", type=float, default=2)
+    parser.add_argument("--output", default="vm_metrics.csv")
+
+    args = parser.parse_args()
+
+    has_gpu = nvidia_available()
+
+    print("=" * 60)
+    print("  VM Monitor Started")
+    print("=" * 60)
+    print(f"  Interval : {args.interval}s")
+    print(f"  Output   : {args.output}")
+    print(f"  GPU      : {'Detected' if has_gpu else 'Not found'}")
+    print("=" * 60)
+
+    rows = []
+
+    try:
+        with open(args.output, "w", newline="") as f:
+            writer = None
+
+            while True:
+                row = sample(has_gpu)
+                rows.append(row)
+
+                # ✅ initialize CSV writer once
+                if writer is None:
+                    writer = csv.DictWriter(f, fieldnames=row.keys())
+                    writer.writeheader()
+
+                writer.writerow(row)
+                f.flush()
+
+                # ✅ console log
+                msg = f"{row['timestamp']} | CPU {row['cpu_pct']}% | RAM {row['ram_pct']}%"
+
+                if has_gpu and row.get("gpu_util_pct") not in ("", None):
+                    msg += f" | GPU {row['gpu_util_pct']}% | Power {row['gpu_power_w']}W"
+
+                print(msg)
+
+                time.sleep(args.interval)
+
+    except KeyboardInterrupt:
+        print("\n✅ Monitoring stopped by user")
+
+    # ✅ summary after stop
+    print_summary(rows)
+
+
+if __name__ == "__main__":
+    main()
 
