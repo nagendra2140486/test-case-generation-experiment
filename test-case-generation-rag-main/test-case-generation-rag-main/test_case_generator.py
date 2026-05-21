@@ -87,6 +87,8 @@ SYSTEM_PROMPT = (
 )
 
 
+
+# ── GENERATOR FUNCTION ✅
 def generate_test_cases(user_story, model, context):
 
     start_time = time.time()
@@ -222,4 +224,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
