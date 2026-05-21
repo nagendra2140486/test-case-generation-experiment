@@ -27,8 +27,11 @@ def get_chunk_context(user_story: str):
         return read_docx("data/07_global_concerns.docx")
 
 # ── CONFIG ───────────────────────────
-OLLAMA_HOST = "http://10.120.100.16/ollama"
-client = ollama.Client(host=OLLAMA_HOST)
+client = ollama.Client(
+    host=OLLAMA_HOST,
+    headers={"Authorization": f"Bearer {API_KEY}"}
+)
+
 
 MODELS = ["llama3.2:latest"]
 
