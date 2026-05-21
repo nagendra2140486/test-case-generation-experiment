@@ -1,27 +1,348 @@
+{
+  "tokens": {
+    "BRD": 15809,
+    "Chunking": 23763
+  },
+  "time_ms": {
+    "BRD": 19810.043811798096,
+    "Chunking": 28520.56074142456
+  },
+  "cpu": {
+    "BRD": null,
+    "Chunking": null
+  },
+  "gpu": {
+    "BRD": null,
+    "Chunking": null
+  },
+  "energy_wh": {
+    "BRD": 0.0,
+    "Chunking": 0.0
+  }
+}
 [
   {
     "user_story": "US-01: As a new user, I want to register using my mobile number so that I can create an account.",
     "path_A": {
-      "content": "error",
+      "content": "**Test Case ID:** US-01\n**Title:** Register with Mobile Number\n**Preconditions:** \n- The device has a stable internet connection.\n- The mobile number is in the international E.164 format (e.g., +14155552671).\n- The user has not previously registered or logged into SwiftPay.\n\n**Test Steps:**\n\n1. Open the SwiftPay application on the device.\n2. Tap the \"Register\" button to start the registration process.\n3. Enter a valid mobile number in the international E.164 format and tap \"Next\".\n4. Receive an OTP via SMS and enter it within 5 minutes of generation.\n5. Attempt to enter the OTP three times within any 15-minute window (three failed attempts).\n6. If all attempts fail, wait for 30 minutes before attempting again.\n7. After successful OTP verification, set a unique 6-digit numeric PIN by entering it twice and confirming.\n\n**Expected Result:** \n- The user's account is successfully created with the provided mobile number.\n- A temporary lockout period of 30 minutes is applied if all OTP entry attempts fail within any 15-minute window.\n\n**Priority:** High\n**Test Type:** Positive",
       "metrics": {
-        "total_tokens": 0,
-        "total_duration_ms": 0,
-        "tokens_per_sec": 0
-      },
-      "error": "<html>\r\n<head><title>504 Gateway Time-out</title></head>\r\n<body>\r\n<center><h1>504 Gateway Time-out</h1></center>\r\n<hr><center>nginx/1.24.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n (status code: 504)"
+        "wall_start": "2026-05-21T19:35:04.352410Z",
+        "wall_end": "2026-05-21T19:35:07.425724Z",
+        "total_tokens": 1271,
+        "prompt_tokens": 1000,
+        "completion_tokens": 271,
+        "total_duration_ms": 3074.1333961486816,
+        "tokens_per_sec": 413.45
+      }
     },
     "path_B": {
-      "content": "error",
+      "content": "**Test Case ID:** US-01\n**Title:** Register with Mobile Number\n**Preconditions:**\n\n* The user has a valid international E.164 formatted mobile number.\n* The user's device is connected to the internet.\n* The system is functioning correctly.\n\n**Test Steps:**\n\n1. Enter a valid international E.164 formatted mobile number into the registration form.\n2. Click the \"Register\" button.\n3. Verify that an OTP is generated and sent to the registered mobile number via SMS.\n4. Enter the OTP within 5 minutes of generation.\n5. Confirm the OTP by re-entering it in the next field.\n6. Set a 6-digit numeric PIN (must not be a simple sequence).\n7. Re-enter the PIN for confirmation.\n8. Verify that the account is created successfully.\n\n**Expected Result:**\n\n* The user's account is created successfully.\n* The OTP verification is successful.\n* The PIN is validated correctly.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Edge Cases:**\n\n* Test with an invalid international E.164 formatted mobile number.\n* Test with a phone number that has already been registered to an active SwiftPay account.\n* Test with a phone number that has been previously used for re-registration after a 30-day cooling-off period.\n\n**Non-Functional Scenarios (NFRs):**\n\n* Performance: Verify that the registration process takes less than 15 seconds to complete.\n* Security: Verify that the OTP is sent via SMS and not via email or another channel.\n* Compliance: Verify that the user's data is stored correctly in accordance with GDPR/CCPA regulations.",
       "metrics": {
-        "total_tokens": 0,
-        "total_duration_ms": 0,
-        "tokens_per_sec": 0
-      },
-      "error": "<html>\r\n<head><title>504 Gateway Time-out</title></head>\r\n<body>\r\n<center><h1>504 Gateway Time-out</h1></center>\r\n<hr><center>nginx/1.24.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n (status code: 504)"
+        "wall_start": "2026-05-21T19:35:07.442405Z",
+        "wall_end": "2026-05-21T19:35:09.292667Z",
+        "total_tokens": 2195,
+        "prompt_tokens": 1817,
+        "completion_tokens": 378,
+        "total_duration_ms": 1850.2790927886963,
+        "tokens_per_sec": 1186.31
+      }
+    }
+  },
+  {
+    "user_story": "US-02: As a user, I want to login using PIN so that I can access my wallet.",
+    "path_A": {
+      "content": "**Test Case ID:** US-02-001\n**Title:** Login with PIN\n**Preconditions:** \n- The user has registered and completed KYC verification.\n- The user has set up their 6-digit numeric PIN.\n\n**Test Steps:**\n\n1. Launch the SwiftPay Mobile Wallet application.\n2. Enter a valid mobile number in international E.164 format (e.g., +14155552671).\n3. Submit the registration form to generate an OTP.\n4. Receive and enter the OTP within the 5-minute validity period.\n5. Attempt to login with the PIN for the first time.\n6. Verify that the application prompts the user to confirm their PIN.\n7. Enter the PIN a second time to complete the login process.\n\n**Expected Result:** \n- The application successfully logs in the user using their PIN.\n- A confirmation message is displayed indicating successful login.\n\n**Priority:** High\n**Test Type:** Positive",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:09.292931Z",
+        "wall_end": "2026-05-21T19:35:10.362537Z",
+        "total_tokens": 1208,
+        "prompt_tokens": 1000,
+        "completion_tokens": 208,
+        "total_duration_ms": 1069.6184635162354,
+        "tokens_per_sec": 1129.37
+      }
     },
-    "comparison": {
-      "token_diff": 0,
-      "latency_diff_ms": 0
+    "path_B": {
+      "content": "**Test Case ID:** US-02-001\n**Title:** Login with PIN\n**Preconditions:** \n- User has registered for SwiftPay Mobile Wallet v2.0\n- User has enabled PIN login in the security settings screen\n- Device is connected to a stable internet network\n\n**Test Steps:**\n1. Launch the SwiftPay Mobile Wallet application.\n2. Tap on \"Login\" and select \"PIN Login\".\n3. Enter a valid 6-digit PIN (e.g., 123456).\n4. Verify that the PIN entry screen masks the digits as the user types.\n5. Attempt to log in with an incorrect PIN (e.g., 123457).\n6. Verify that the system displays an error message and prompts for another attempt.\n7. Repeat steps 5-6 three more times, ensuring each attempt is incorrect.\n\n**Expected Result:** \n- The system locks out the user's account for 15 minutes after five consecutive incorrect PIN entries.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Additional Test Cases:**\nUS-02-002: Login with Incorrect PIN (Negative)\nUS-02-003: Biometric Login with Correct PIN (Positive)\nUS-02-004: Session Expiration due to Inactivity (Edge)",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:10.378634Z",
+        "wall_end": "2026-05-21T19:35:11.856361Z",
+        "total_tokens": 2083,
+        "prompt_tokens": 1824,
+        "completion_tokens": 259,
+        "total_duration_ms": 1477.7438640594482,
+        "tokens_per_sec": 1409.58
+      }
+    }
+  },
+  {
+    "user_story": "US-03: As a user, I want to link a card so that I can add funds.",
+    "path_A": {
+      "content": "**Test Case ID:** US-03\n**Title:** Linking Card for Adding Funds\n**Preconditions:** \n- The user has registered with SwiftPay and completed KYC verification.\n- The user has an active mobile number in the international E.164 format.\n\n**Test Steps:**\n\n1. Launch the SwiftPay application on a supported device (iOS 15 or above, Android 10 or above).\n2. Navigate to the \"Wallet\" section and select \"Add Funds\".\n3. Tap on \"Link Card\" and enter the card details (card number, expiration date, CVV).\n4. Confirm the card details by re-entering them in the next screen.\n5. Select a payment method (e.g., Apple Pay, Google Pay) to link the card.\n6. Wait for the card linking process to complete.\n\n**Expected Result:** \n- The linked card is successfully added to the user's wallet.\n- The user can add funds to their account using the linked card.\n\n**Priority:** Medium\n**Test Type:** Positive",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:11.856618Z",
+        "wall_end": "2026-05-21T19:35:13.021014Z",
+        "total_tokens": 1220,
+        "prompt_tokens": 1000,
+        "completion_tokens": 220,
+        "total_duration_ms": 1164.4089221954346,
+        "tokens_per_sec": 1047.74
+      }
+    },
+    "path_B": {
+      "content": "**Test Case ID:** US-03-001\n**Title:** Linking Card for Adding Funds\n**Preconditions:**\n\n* The user has a valid SwiftPay account with an empty wallet.\n* The user's device meets the minimum system requirements (200 MB free storage).\n* The user is connected to the internet.\n\n**Test Steps:**\n\n1. Launch the SwiftPay application and navigate to the Wallet section.\n2. Tap the \"Add Card\" button.\n3. Select a valid payment card type (Visa, Mastercard, or American Express).\n4. Enter the card number and CVV.\n5. Confirm that the verification charge is displayed correctly (USD 0.00 or USD 1.00 reversible auth).\n6. Tap \"Link Card\" to complete the linking process.\n\n**Expected Result:**\n\n* The linked card is successfully added to the user's wallet.\n* The card brand, last 4 digits, expiry month and year, and nickname are displayed correctly.\n* The default funding source option is not available initially (unless the user has previously set a default).\n\n**Priority:** High\n**Test Type:** Positive\n\n**Edge Cases:**\n\n* Test case US-03-002: Attempt to link an invalid card number. Verify that the linking process fails and displays an error message.\n* Test case US-03-003: Link multiple cards with different expiration dates. Verify that each card is displayed correctly in the wallet.\n\n**Non-Functional Requirements (NFRs):**\n\n* Performance: Verify that the linking process takes less than 800ms to complete under normal load.\n* Security: Verify that TLS 1.3 is used for API communications and sensitive data at rest is encrypted using AES-256.\n* Compliance: Verify that the verification charge is displayed correctly and complies with applicable regulations (e.g., GDPR, CCPA).",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:13.036495Z",
+        "wall_end": "2026-05-21T19:35:15.098744Z",
+        "total_tokens": 2305,
+        "prompt_tokens": 1888,
+        "completion_tokens": 417,
+        "total_duration_ms": 2062.265396118164,
+        "tokens_per_sec": 1117.7
+      }
+    }
+  },
+  {
+    "user_story": "US-04: As a user, I want to add money to wallet so that I can use it.",
+    "path_A": {
+      "content": "**Test Case ID:** US-04\n**Title:** Add Money to Wallet\n**Preconditions:** \n- The user has registered with SwiftPay and completed KYC verification.\n- The user's account is active.\n\n**Test Steps:**\n1. Launch the SwiftPay mobile application.\n2. Navigate to the \"Wallet\" section.\n3. Tap on the \"+\" icon to add funds to the wallet.\n4. Select a payment method (e.g., bank transfer, card link).\n5. Enter the required amount and confirm.\n6. Verify that the funds have been successfully added to the wallet.\n\n**Expected Result:** \nThe user's wallet balance is updated with the specified amount.\n\n**Priority:** High\n**Test Type:** Positive",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:15.098997Z",
+        "wall_end": "2026-05-21T19:35:15.974823Z",
+        "total_tokens": 1157,
+        "prompt_tokens": 1000,
+        "completion_tokens": 157,
+        "total_duration_ms": 875.8385181427002,
+        "tokens_per_sec": 1321.02
+      }
+    },
+    "path_B": {
+      "content": "**Test Case ID:** US-04-TC\n**Title:** Add Money to Wallet\n**Preconditions:**\n- The user has a verified KYC status.\n- The user has at least one linked card in their wallet.\n\n**Test Steps:**\n\n1. Launch the application and navigate to the wallet section.\n2. Tap on the \"Add Funds\" button.\n3. Select a linked card from the list of available cards.\n4. Enter the amount to be added (minimum USD 1, maximum USD 2000).\n5. Confirm the transaction.\n\n**Expected Result:**\n- The funds are successfully added to the wallet balance within 10 seconds of successful card authorisation.\n- The user receives a notification informing them that the transaction is being processed and they will be notified of the outcome if there's a delay beyond 30 seconds.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Edge Case:**\nUS-04-TC-EC1:\n- The user has only one linked card in their wallet.\n- The user attempts to add funds using this single card.\n- Expected Result: The user is informed that they will not be able to add funds until a new card is linked.\n\n**Negative Scenario:**\nUS-04-NSC1:\n- The user has a verified KYC status but no linked cards in their wallet.\n- The user attempts to add funds using the \"Add Funds\" button.\n- Expected Result: An error message is displayed indicating that the user must link a card before adding funds.\n\n**Non-Functional Scenario:**\nUS-04-NFS1:\n- The application's performance is tested with 50,000 concurrent active sessions.\n- Expected Result: The 95th-percentile API response time remains under 800 ms.",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:15.990406Z",
+        "wall_end": "2026-05-21T19:35:17.963098Z",
+        "total_tokens": 2267,
+        "prompt_tokens": 1888,
+        "completion_tokens": 379,
+        "total_duration_ms": 1972.707986831665,
+        "tokens_per_sec": 1149.18
+      }
+    }
+  },
+  {
+    "user_story": "US-05: As a user, I want to send money to another user so that I can transfer funds.",
+    "path_A": {
+      "content": "**Test Case ID:** US-05-TC-001\n**Title:** Send Money to Another User\n**Preconditions:** \n- The user is registered and has completed KYC verification.\n- The recipient's mobile number is in the international E.164 format.\n\n**Test Steps:**\n1. Launch the SwiftPay Mobile Wallet application.\n2. Log in using biometric authentication or PIN-based authentication.\n3. Navigate to the \"Send Money\" section.\n4. Enter the recipient's mobile number and select the amount to transfer.\n5. Confirm the transaction details.\n6. Tap the \"Send\" button.\n\n**Expected Result:** \n- The transaction is successfully sent to the recipient's mobile number.\n- A confirmation message is displayed on the screen.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Edge Case:**\n- Test case US-05-TC-002: What if the recipient's mobile number is invalid or does not exist?\n    1. Launch the SwiftPay Mobile Wallet application.\n    2. Log in using biometric authentication or PIN-based authentication.\n    3. Navigate to the \"Send Money\" section.\n    4. Enter an invalid or non-existent mobile number and select the amount to transfer.\n    5. Confirm the transaction details.\n    6. Tap the \"Send\" button.\n\n**Expected Result:** \n- An error message is displayed on the screen indicating that the recipient's mobile number is invalid or does not exist.\n\n**Non-Functional Requirement (Performance):**\n- Test case US-05-TC-003: What if the network connection is slow?\n    1. Launch the SwiftPay Mobile Wallet application.\n    2. Log in using biometric authentication or PIN-based authentication.\n    3. Navigate to the \"Send Money\" section.\n    4. Enter a large amount and select the recipient's mobile number.\n    5. Confirm the transaction details.\n    6. Tap the \"Send\" button while simulating slow network connection.\n\n**Expected Result:** \n- The application does not crash or freeze, and the transaction is successfully sent within a reasonable time frame.\n\n**Security Requirement:**\n- Test case US-05-TC-004: What if the recipient's mobile number is spoofed?\n    1. Launch the SwiftPay Mobile Wallet application.\n    2. Log in using biometric authentication or PIN-based authentication.\n    3. Navigate to the \"Send Money\" section.\n    4. Enter a spoofed mobile number and select the amount to transfer.\n    5. Confirm the transaction details.\n    6. Tap the \"Send\" button.\n\n**Expected Result:** \n- An error message is displayed on the screen indicating that the recipient's mobile number is invalid or does not exist.",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:17.963409Z",
+        "wall_end": "2026-05-21T19:35:20.849225Z",
+        "total_tokens": 1620,
+        "prompt_tokens": 1000,
+        "completion_tokens": 620,
+        "total_duration_ms": 2885.8280181884766,
+        "tokens_per_sec": 561.36
+      }
+    },
+    "path_B": {
+      "content": "**Test Case ID:** US-05-001\n**Title:** Send Money to Another User\n**Preconditions:** \n- The user has a verified SwiftPay account with KYC information.\n- The sender and recipient have different SwiftPay handles.\n\n**Test Steps:**\n1. Launch the SwiftPay mobile application.\n2. Log in to the account using credentials.\n3. Navigate to the \"Send Money\" screen from the home screen.\n4. Select the recipient's handle (mobile number, email address, or SwiftPay handle) from the list.\n5. Enter the amount to be transferred and confirm.\n6. Review the transfer details, including the recipient's display name, profile picture, and transfer amount.\n7. Authorize the transfer using biometric authentication (for transfers under $500) or PIN entry (for transfers above $500).\n8. Wait for 30 seconds to allow for reversibility window.\n9. Verify that the transfer is successfully processed.\n\n**Expected Result:** \n- The recipient's display name and profile picture are displayed on the confirmation screen.\n- The transfer amount, fee, and funding source are correctly displayed.\n- The sender receives a push notification confirming the transfer was sent.\n- The recipient receives a push notification with deep links to the relevant transaction screen.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Additional Test Cases:**\nUS-05-002: \n- As a user, I want to send money to another user so that I can transfer funds (Negative).\n  - Preconditions:\n    - The recipient has not been verified.\n  - Steps:\n    1. Launch the SwiftPay mobile application.\n    2. Log in to the account using credentials.\n    3. Navigate to the \"Send Money\" screen from the home screen.\n    4. Select the recipient's handle (mobile number, email address, or SwiftPay handle) from the list.\n    5. Enter the amount to be transferred and confirm.\n    6. Review the transfer details.\n  - Expected Result:\n    - The system displays an error message indicating that the recipient is not verified.\n\nUS-05-003: \n- As a user, I want to send money to another user so that I can transfer funds (Edge).\n  - Preconditions:\n    - The sender has only $1 in their wallet.\n  - Steps:\n    1. Launch the SwiftPay mobile application.\n    2. Log in to the account using credentials.\n    3. Navigate to the \"Send Money\" screen from the home screen.\n    4. Select the recipient's handle (mobile number, email address, or SwiftPay handle) from the list.\n    5. Enter the amount to be transferred and confirm.\n    6. Review the transfer details.\n  - Expected Result:\n    - The system displays an error message indicating that the sender does not have sufficient funds.\n\nUS-05-004: \n- As a user, I want to send money to another user so that I can transfer funds (NFR).\n  - Preconditions:\n    - The system is under normal load.\n  - Steps:\n    1. Launch the SwiftPay mobile application.\n    2. Log in to the account using credentials.\n    3. Navigate to the \"Send Money\" screen from the home screen.\n    4. Select the recipient's handle (mobile number, email address, or SwiftPay handle) from the list",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:20.866142Z",
+        "wall_end": "2026-05-21T19:35:24.534138Z",
+        "total_tokens": 2725,
+        "prompt_tokens": 1968,
+        "completion_tokens": 757,
+        "total_duration_ms": 3668.012857437134,
+        "tokens_per_sec": 742.91
+      }
+    }
+  },
+  {
+    "user_story": "US-06: As a user, I want to receive money so that I can accept transfers.",
+    "path_A": {
+      "content": "**Test Case ID:** US-06-TC-001\n**Title:** Receive Money Transfer\n**Preconditions:** \n- User is registered with SwiftPay and has completed KYC verification.\n- User has a valid mobile number in international E.164 format.\n\n**Test Steps:**\n1. Launch the SwiftPay application on a supported device (iOS 15 or above, Android 10 or above).\n2. Navigate to the \"Send Money\" section of the application.\n3. Enter the recipient's mobile number and select the transfer amount.\n4. Confirm the transaction details and proceed with the payment.\n5. Verify that the money is successfully transferred to the recipient's account.\n\n**Expected Result:** \n- The user receives a confirmation message indicating that the money has been transferred to the recipient's account.\n- The recipient's account balance is updated accordingly.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Note:** This test case covers the positive scenario of receiving a money transfer. Additional negative scenarios, such as failed transactions or insufficient funds, will be included in subsequent test cases.",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:24.534400Z",
+        "wall_end": "2026-05-21T19:35:25.736585Z",
+        "total_tokens": 1266,
+        "prompt_tokens": 1000,
+        "completion_tokens": 266,
+        "total_duration_ms": 1202.1970748901367,
+        "tokens_per_sec": 1053.07
+      }
+    },
+    "path_B": {
+      "content": "**Test Case ID:** US-06-TC-01\n**Title:** Receive Money Transfer\n**Preconditions:** \n- User has a verified KYC profile\n- User has sufficient balance in their wallet\n- Network connectivity is available\n\n**Test Steps:**\n1. Log in to the application using a valid username and password.\n2. Navigate to the \"Wallet\" section.\n3. Click on the \"Receive Money\" button.\n4. Enter the recipient's details (name, email, phone number).\n5. Select the transfer amount from the available options.\n6. Confirm the transaction details.\n7. Wait for the transaction to be processed.\n\n**Expected Result:** \n- The user receives a confirmation message with the transaction ID.\n- The transaction is successfully added to the wallet balance.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Additional Test Cases:**\nUS-06-TC-02 (Negative): Receive Money Transfer - Insufficient Balance\nUS-06-TC-03 (Edge): Receive Money Transfer - KYC Pending\nUS-06-TC-04 (NFR): Performance - 95th-percentile API Response Time for Receive Money Transfer\n\n**US-06-TC-01-NF:** \n**Test Case ID:** US-06-TC-01-NF\n**Title:** Receive Money Transfer - Network Failure\n**Preconditions:** \n- User has a verified KYC profile\n- User has sufficient balance in their wallet\n- Network connectivity is unavailable\n\n**Test Steps:**\n1. Log in to the application using a valid username and password.\n2. Navigate to the \"Wallet\" section.\n3. Click on the \"Receive Money\" button.\n4. Enter the recipient's details (name, email, phone number).\n5. Select the transfer amount from the available options.\n6. Confirm the transaction details.\n\n**Expected Result:** \n- An error message is displayed indicating network failure.\n- The transaction is not processed.\n\n**Priority:** Medium\n**Test Type:** Negative\n\n**US-06-TC-01-PF:** \n**Test Case ID:** US-06-TC-01-PF\n**Title:** Receive Money Transfer - PIN Required for Large Transaction\n**Preconditions:** \n- User has a verified KYC profile\n- User has sufficient balance in their wallet\n- Network connectivity is available\n\n**Test Steps:**\n1. Log in to the application using a valid username and password.\n2. Navigate to the \"Wallet\" section.\n3. Click on the \"Receive Money\" button.\n4. Select a transfer amount above USD 500.\n5. Confirm the transaction details.\n\n**Expected Result:** \n- A PIN entry screen is displayed for authentication.\n- The user must enter their PIN to complete the transaction.\n\n**Priority:** Medium\n**Test Type:** Positive",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:25.747066Z",
+        "wall_end": "2026-05-21T19:35:28.669427Z",
+        "total_tokens": 1682,
+        "prompt_tokens": 1078,
+        "completion_tokens": 604,
+        "total_duration_ms": 2922.377109527588,
+        "tokens_per_sec": 575.56
+      }
+    }
+  },
+  {
+    "user_story": "US-07: As a user, I want to scan QR code so that I can pay merchants.",
+    "path_A": {
+      "content": "**Test Case ID:** US-07\n**Title:** Scan QR Code for Payment\n**Preconditions:** \n- User is logged in to the SwiftPay mobile wallet application.\n- User has completed KYC verification.\n\n**Test Steps:**\n\n1. Launch the SwiftPay mobile wallet application on a device with a compatible operating system (iOS 15 or above, Android 10 or above).\n2. Navigate to the merchant payment screen.\n3. Tap on the \"Scan QR Code\" button.\n4. The camera will activate and display the merchant's QR code.\n5. The user should be able to scan the QR code successfully using their device's camera.\n6. After scanning, the application should prompt the user to select a payment method (e.g., card, bank account).\n7. The user should be able to complete the payment transaction successfully.\n\n**Expected Result:** \n- The application displays the merchant's name and logo after successful QR code scan.\n- The payment transaction is processed correctly and displayed in the transaction history.\n\n**Priority:** High\n**Test Type:** Positive",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:28.669683Z",
+        "wall_end": "2026-05-21T19:35:29.863080Z",
+        "total_tokens": 1251,
+        "prompt_tokens": 1000,
+        "completion_tokens": 251,
+        "total_duration_ms": 1193.4106349945068,
+        "tokens_per_sec": 1048.26
+      }
+    },
+    "path_B": {
+      "content": "**Test Case ID:** US-07-001\n**Title:** Scan QR Code for Payment\n**Preconditions:** \n- The user has a SwiftPay account with KYC verification.\n- The user's device is connected to the internet.\n- The merchant's QR code is displayed on the screen.\n\n**Test Steps:**\n1. Launch the SwiftPay application and navigate to the home screen.\n2. Tap the \"Scan & Pay\" button.\n3. The in-app camera scanner opens, displaying a prompt to point the camera at the merchant\u2019s QR code.\n4. Point the camera at the merchant's QR code and wait for it to be detected.\n5. Verify that the system displays a confirmation screen with the merchant's registered business name, MCC, payment amount (editable for static, locked for dynamic), and funding source.\n\n**Expected Result:** \n- The system successfully detects the merchant\u2019s QR code.\n- The confirmation screen is displayed with accurate information.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Edge Case:**\nUS-07-001-EC1 - The user scans a QR code that does not belong to any merchant. Verify that an error message is displayed and the system prompts the user to select a valid merchant from their contact list or search for a new merchant.\n\n**Non-Functional Requirement (NFR) Test Case:**\nUS-07-NFR-001 - The 95th-percentile API response time under normal load is less than 800 ms. Verify that the system responds within this timeframe after scanning the QR code and proceeding with payment.\n\n**Security NFR Test Case:**\nUS-07-Security-001 - All API communications use TLS 1.3. Verify that the system uses TLS 1.3 when communicating with the server to process the payment.\n\n**Compliance Test Case:**\nUS-07-Compliance-001 - Transaction records are retained for at least 7 years. Verify that the system stores transaction records for a minimum of 7 years after the transaction is completed.",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:29.881850Z",
+        "wall_end": "2026-05-21T19:35:32.125204Z",
+        "total_tokens": 2377,
+        "prompt_tokens": 1923,
+        "completion_tokens": 454,
+        "total_duration_ms": 2243.368625640869,
+        "tokens_per_sec": 1059.57
+      }
+    }
+  },
+  {
+    "user_story": "US-08: As a user, I want to view transaction history so that I can track spending.",
+    "path_A": {
+      "content": "**Test Case ID:** US-08-TC-001\n**Title:** View Transaction History\n**Preconditions:** \n- User is logged in with valid credentials.\n- User has completed KYC verification.\n\n**Test Steps:**\n\n1. Launch the SwiftPay Mobile Wallet application.\n2. Log in using a registered mobile number and OTP.\n3. Navigate to the \"Wallet\" section.\n4. Tap on the \"Transaction History\" tab.\n5. Verify that the transaction history is displayed correctly, including date, time, amount, and merchant name.\n\n**Expected Result:** \n- The user can view their transaction history with correct details.\n- The transaction history is updated in real-time.\n\n**Priority:** High\n**Test Type:** Positive",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:32.125468Z",
+        "wall_end": "2026-05-21T19:35:32.995595Z",
+        "total_tokens": 1166,
+        "prompt_tokens": 1000,
+        "completion_tokens": 166,
+        "total_duration_ms": 870.1395988464355,
+        "tokens_per_sec": 1340.01
+      }
+    },
+    "path_B": {
+      "content": "**Test Case ID:** US-08-TC-01\n**Title:** View Transaction History\n**Preconditions:** User has logged in and has at least one transaction.\n\n1. Log in to the application with valid credentials.\n2. Navigate to the \"Transaction History\" section.\n3. Verify that the user can view their transaction history, including date, amount, and type of transaction.\n4. Verify that the user can filter transactions by date range or other criteria (if applicable).\n5. Verify that the system displays all relevant information for each transaction, including any associated fees or charges.\n\n**Expected Result:** The user is able to view their transaction history with all required information displayed.\n\n**Priority:** High\n**Test Type:** Positive\n\n**NFRs:**\n\n* Security NFRs:\n\t+ Ensure that sensitive data (transaction amounts) is not visible in the transaction history.\n* Compliance NFRs:\n\t+ Verify that the system complies with GDPR and CCPA regulations for user data retention and export.\n\n**Edge Cases:**\n\n1. User has no transactions recorded.\n2. User has multiple transactions with different currencies.\n3. User attempts to view transaction history after logging out.\n\n**Performance SLAs:**\n\n* 95th-percentile API response time under 800 ms under normal load.\n\n**Assumptions & Constraints:**\n\n* No offline mode \u2014 all transaction operations require connectivity.\n* Minimum 200 MB free device storage at install.",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:33.006629Z",
+        "wall_end": "2026-05-21T19:35:34.581140Z",
+        "total_tokens": 1427,
+        "prompt_tokens": 1078,
+        "completion_tokens": 349,
+        "total_duration_ms": 1574.5275020599365,
+        "tokens_per_sec": 906.3
+      }
+    }
+  },
+  {
+    "user_story": "US-09: As a user, I want to get notifications so that I am aware of activities.",
+    "path_A": {
+      "content": "**Test Case ID:** US-09-001\n**Title:** Receive Notifications for Activities\n**Preconditions:** User is registered and has completed KYC verification.\n\n1. The user logs in to the SwiftPay mobile wallet application.\n2. The user receives a push notification from SwiftPay regarding an activity (e.g., transaction, peer-to-peer transfer).\n3. The user clicks on the notification to view more information about the activity.\n\n**Expected Result:** The user is redirected to the transaction history or peer-to-peer transfers page with the relevant activity details.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Edge Case:**\n\n1. The user has multiple notifications pending.\n2. The user clicks on a notification, but it does not load the expected content.\n3. The user receives no notifications for an extended period.\n\n**Non-Functional Requirements:**\n\n1. Performance: The application loads the notification details within 2 seconds.\n2. Security: The application validates the user's session and ensures that only authorized users can view their activity history.\n\n**Negative Scenarios:**\n\n1. The user is not logged in when they receive a notification.\n2. The user has an outdated operating system or device configuration, causing issues with push notifications.\n3. The user has disabled notifications on their device.\n\n**Test Case ID:** US-09-002\n**Title:** Notification Dismissal\n**Preconditions:** User is registered and has completed KYC verification.\n\n1. The user logs in to the SwiftPay mobile wallet application.\n2. The user receives a push notification from SwiftPay regarding an activity (e.g., transaction, peer-to-peer transfer).\n3. The user taps on the \"Dismiss\" button to ignore the notification.\n\n**Expected Result:** The notification is removed from the user's device, and no further notifications are sent for that specific activity.\n\n**Priority:** Medium\n**Test Type:** Negative",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:34.581395Z",
+        "wall_end": "2026-05-21T19:35:36.579951Z",
+        "total_tokens": 1471,
+        "prompt_tokens": 1000,
+        "completion_tokens": 471,
+        "total_duration_ms": 1998.567819595337,
+        "tokens_per_sec": 736.03
+      }
+    },
+    "path_B": {
+      "content": "**Test Case ID:** US-09-001\n**Title:** Notification Receipt for Activities\n**Preconditions:** User has logged in and is on the home screen.\n\n1. The user receives an email notification about a transaction.\n2. The user taps on the notification to view details.\n3. The system displays the transaction amount, date, and time.\n4. The user views the transaction details without any errors or issues.\n\n**Expected Result:** The system correctly displays the transaction details in the notification.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Additional Test Cases:**\n\nUS-09-002:\n**Title:** Notification Dismissal for Non-Security Events\n**Preconditions:** User has logged in and is on the home screen.\n1. The user receives an email notification about a non-security event (e.g., account update).\n2. The user taps on the notification to view details.\n3. The system displays the event details without any errors or issues.\n4. The user dismisses the notification.\n\n**Expected Result:** The system correctly displays and dismisses the non-security event notification.\n\nUS-09-003:\n**Title:** Notification Receipt for KYC Outcome\n**Preconditions:** User has logged in and is on the home screen, pending KYC status.\n1. The user receives an email notification about their KYC outcome.\n2. The user taps on the notification to view details.\n3. The system displays the KYC outcome (e.g., approved or rejected).\n4. The user views the KYC outcome without any errors or issues.\n\n**Expected Result:** The system correctly displays the KYC outcome in the notification.\n\nUS-09-004:\n**Title:** Notification Receipt for Security Events\n**Preconditions:** User has logged in and is on the home screen.\n1. The user receives an email notification about a security event (e.g., account suspension).\n2. The user taps on the notification to view details.\n3. The system displays the security event details without any errors or issues.\n4. The user views the security event details without any issues.\n\n**Expected Result:** The system correctly displays the security event notification with no errors or issues.",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:36.590326Z",
+        "wall_end": "2026-05-21T19:35:38.871537Z",
+        "total_tokens": 1598,
+        "prompt_tokens": 1078,
+        "completion_tokens": 520,
+        "total_duration_ms": 2281.22615814209,
+        "tokens_per_sec": 700.5
+      }
+    }
+  },
+  {
+    "user_story": "US-10: As a user, I want to withdraw money so that I can move funds to bank.",
+    "path_A": {
+      "content": "**Test Case ID:** US-10\n**Title:** Withdrawal of Funds from SwiftPay Wallet\n**Preconditions:**\n\n* The user has successfully completed the onboarding process and KYC verification.\n* The user's account balance is sufficient for withdrawal.\n* The user has a linked bank account.\n\n**Test Steps:**\n\n1. Launch the SwiftPay mobile application.\n2. Log in to the user's account using biometric authentication or PIN.\n3. Navigate to the \"Wallet\" section.\n4. Tap on the \"Withdraw\" option.\n5. Select the desired withdrawal amount from the available options (e.g., $100, $500).\n6. Choose the linked bank account for withdrawal.\n7. Review and confirm the withdrawal details.\n8. Tap \"Confirm Withdrawal\".\n\n**Expected Result:**\n\n* The user's account balance is updated to reflect the withdrawn amount.\n* A confirmation message is displayed indicating that the withdrawal has been successful.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Edge Case:**\n\n* Test case ID: US-10.1\n**Title:** Insufficient Funds for Withdrawal\n**Preconditions:** Same as above, except the user's account balance is insufficient for withdrawal.\n**Test Steps:**\n1. Launch the SwiftPay mobile application.\n2. Log in to the user's account using biometric authentication or PIN.\n3. Navigate to the \"Wallet\" section.\n4. Tap on the \"Withdraw\" option.\n5. Select a withdrawal amount that exceeds the available balance.\n6. Choose the linked bank account for withdrawal.\n7. Review and confirm the withdrawal details.\n8. Tap \"Confirm Withdrawal\".\n\n**Expected Result:**\n\n* An error message is displayed indicating that insufficient funds are available for withdrawal.\n\n**Non-Functional Requirement (NFR):**\n\n* Test case ID: US-10.2\n**Title:** Performance of Withdrawal Process\n**Preconditions:** Same as above.\n**Test Steps:**\n1. Launch the SwiftPay mobile application.\n2. Log in to the user's account using biometric authentication or PIN.\n3. Navigate to the \"Wallet\" section.\n4. Tap on the \"Withdraw\" option.\n5. Select a withdrawal amount of $100.\n6. Choose the linked bank account for withdrawal.\n7. Repeat steps 4-6 multiple times (e.g., 10 times).\n8. Measure the time taken to complete the withdrawal process.\n\n**Expected Result:**\n\n* The withdrawal process completes within a reasonable time frame (< 30 seconds).",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:38.871828Z",
+        "wall_end": "2026-05-21T19:35:41.499852Z",
+        "total_tokens": 1567,
+        "prompt_tokens": 1000,
+        "completion_tokens": 567,
+        "total_duration_ms": 2628.040075302124,
+        "tokens_per_sec": 596.26
+      }
+    },
+    "path_B": {
+      "content": "**Test Case ID:** US-10-TC-01\n**Title:** Withdrawal Money - Security and Compliance Tests\n**Preconditions:** \n- User has a verified KYC profile.\n- User has sufficient balance in their wallet.\n\n**Test Steps:**\n\n1. Log in to the application using a valid username and password.\n2. Navigate to the \"Wallet\" section and select the account for which withdrawal is required.\n3. Click on the \"Withdraw\" button.\n4. Enter the amount to be withdrawn (e.g., USD 500).\n5. Select the payment method (e.g., bank transfer).\n6. Verify that the transaction details, including the amount and payment method, are correctly displayed.\n\n**Expected Result:** \n- The system successfully processes the withdrawal request.\n- The transaction is recorded in the database with the correct amount and payment method.\n- No sensitive data (PAN/CVV) appears in any log or analytics event.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Additional Test Cases:**\n\nUS-10-TC-02:\n**Title:** Withdrawal Money - Rate Limiting Tests\n**Preconditions:** \n- User has a verified KYC profile.\n- User has sufficient balance in their wallet.\n- The user has failed authentication attempts on sensitive endpoints (login, card linking, large transactions) recently.\n\n**Test Steps:**\n\n1. Log in to the application using a valid username and password.\n2. Navigate to the \"Wallet\" section and select the account for which withdrawal is required.\n3. Click on the \"Withdraw\" button.\n4. Enter an amount that exceeds the allowed threshold (e.g., USD 1500).\n5. Verify that the system rate limits the transaction attempt.\n\n**Expected Result:** \n- The system successfully rate limits the transaction attempt.\n- The user is notified of the rate limit and instructed to wait before attempting again.\n\nUS-10-TC-03:\n**Title:** Withdrawal Money - Compliance Tests\n**Preconditions:** \n- User has a verified KYC profile.\n- User has sufficient balance in their wallet.\n- The system has recorded the transaction for at least 7 years.\n\n**Test Steps:**\n\n1. Log in to the application using a valid username and password.\n2. Navigate to the \"Wallet\" section and select the account for which withdrawal is required.\n3. Click on the \"Withdraw\" button.\n4. Enter an amount that exceeds the allowed threshold (e.g., USD 1500).\n5. Verify that the system has recorded the transaction and retained it for at least 7 years.\n\n**Expected Result:** \n- The system successfully records and retains the transaction data.\n- The user is able to request a full data export from within the application.",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:41.512932Z",
+        "wall_end": "2026-05-21T19:35:44.360669Z",
+        "total_tokens": 1705,
+        "prompt_tokens": 1078,
+        "completion_tokens": 627,
+        "total_duration_ms": 2847.7535247802734,
+        "tokens_per_sec": 598.72
+      }
+    }
+  },
+  {
+    "user_story": "US-11: As a user, I want secure authentication so that my account is protected.",
+    "path_A": {
+      "content": "**Test Case ID:** US-11-001\n**Title:** Secure Authentication for KYC Verification\n**Preconditions:** \n- The user has registered with SwiftPay using their mobile number.\n- The user's mobile number is in the international E.164 format.\n\n**Test Steps:**\n\n1. Register a new user with SwiftPay using their mobile number.\n2. Verify the OTP sent to the registered mobile number.\n3. Set and confirm a 6-digit numeric PIN.\n4. Attempt to complete KYC verification without providing required documents.\n5. Verify that the system prompts for additional information or documentation if KYC verification fails.\n\n**Expected Result:** \n- The user's account is secured with biometric authentication (e.g., Face ID, Touch ID).\n- The system requires a 6-digit numeric PIN for added security.\n- KYC verification is completed successfully without any errors.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Edge Case:**\n- Test case US-11-002: What happens when the user enters an incorrect OTP? Verify that the account is temporarily locked for 30 minutes and no further OTPs are sent to the same mobile number.\n \n**Non-Functional Requirement (NFR):**\n- Performance: Verify that KYC verification completes within a reasonable time frame (e.g., < 2 minutes).\n- Security: Verify that biometric authentication and PIN-based security measures prevent unauthorized access to the user's account.",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:44.360998Z",
+        "wall_end": "2026-05-21T19:35:45.932970Z",
+        "total_tokens": 1341,
+        "prompt_tokens": 1000,
+        "completion_tokens": 341,
+        "total_duration_ms": 1571.9852447509766,
+        "tokens_per_sec": 853.06
+      }
+    },
+    "path_B": {
+      "content": "**Test Case ID:** US-11-TC-01\n**Title:** Secure Authentication - PIN vs Biometric Threshold Behavior\n**Preconditions:** User has verified KYC and has a wallet balance above USD 500.\n\n1. Perform login with valid credentials.\n2. Attempt to initiate a transaction of at least USD 500 using biometric authentication.\n3. Verify that the system falls back to PIN entry after 5 consecutive biometric failures.\n4. Enter correct PIN for the transaction.\n5. Verify that the transaction is processed successfully.\n\n**Expected Result:** The system correctly enforces the biometric vs PIN threshold behavior, and the user can complete the transaction using either method.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Additional Test Cases:**\n\nUS-11-TC-02: Secure Authentication - PIN Lockout Behavior\n1. Perform login with valid credentials.\n2. Attempt to initiate a transaction of at least USD 500 using biometric authentication.\n3. Fail biometric authentication 5 times consecutively.\n4. Verify that the system locks out the user's account for 15 minutes.\n\nUS-11-TC-03: Secure Authentication - PIN Reset via OTP\n1. Perform login with valid credentials.\n2. Attempt to initiate a transaction of at least USD 500 using biometric authentication.\n3. Fail biometric authentication 10 times consecutively across sessions.\n4. Verify that the system sends an OTP for PIN reset and requires KYC selfie liveness check.\n\nUS-11-TC-04: Secure Authentication - New PIN Policy\n1. Perform login with valid credentials.\n2. Attempt to initiate a transaction of at least USD 500 using biometric authentication.\n3. Enter an invalid PIN (not one of the user's previous 5 PINs).\n4. Verify that the system rejects the new PIN and prompts for re-entry.\n\n**Test Case ID:** US-11-TC-05\n**Title:** Secure Authentication - Session Validity Gating\n**Preconditions:** User has verified KYC and has a wallet balance above USD 500.\n\n1. Perform login with valid credentials.\n2. Initiate a transaction of at least USD 500 using biometric authentication.\n3. Simulate user inactivity for 15 minutes.\n4. Verify that the system terminates the active session upon SIM change or PIN change.\n\n**Expected Result:** The system correctly enforces session validity gating, and the user's account is terminated when inactive for an extended period.\n\n**Priority:** High\n**Test Type:** Positive\n\n**Additional Test Cases:**\n\nUS-11-TC-06: Secure Authentication - Session Termination on SIM Change\n1. Perform login with valid credentials.\n2. Initiate a transaction of at least USD 500 using biometric authentication.\n3. Simulate user inactivity for 15 minutes.\n4. Change the user's SIM card.\n5. Verify that the system terminates the active session.\n\nUS-11-TC-07: Secure Authentication - Session Termination on PIN Change\n1. Perform login with valid credentials.\n2. Initiate a transaction of at least USD 500 using biometric authentication.\n3. Simulate user inactivity for 15 minutes.\n4. Change the user's PIN.\n5. Verify that the system terminates the active session.\n\n**Test Case ID:** US-11-TC-08\n**Title:** Secure Authentication - Rate Limiting on Sensitive Endpoints\n**",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:45.943680Z",
+        "wall_end": "2026-05-21T19:35:49.482927Z",
+        "total_tokens": 1855,
+        "prompt_tokens": 1078,
+        "completion_tokens": 777,
+        "total_duration_ms": 3539.2632484436035,
+        "tokens_per_sec": 524.12
+      }
+    }
+  },
+  {
+    "user_story": "US-12: As a user, I want export data so that I can download statements.",
+    "path_A": {
+      "content": "**Test Case ID:** US-12\n**Title:** Export Data for Downloading Statements\n**Preconditions:** The user has completed KYC verification and has a valid account.\n\n**Test Steps:**\n\n1. Log in to the SwiftPay mobile wallet application using a registered account.\n2. Navigate to the \"Account\" section.\n3. Tap on \"Export Data\".\n4. Select the desired data range (e.g., last 30 days).\n5. Choose the export format (e.g., CSV, PDF).\n6. Confirm the export request.\n\n**Expected Result:** The user is successfully exported their account data in the chosen format.\n\n**Priority:** Medium\n**Test Type:** Positive\n\n**Edge Case:**\n\n* Test that the export feature works correctly for users with multiple cards linked to their account.\n* Test that the export feature works correctly for users who have not completed KYC verification.\n\n**Non-Functional Requirements:**\n\n* Performance: The export process takes less than 2 minutes to complete.\n* Security: The exported data is encrypted and protected from unauthorized access.\n* Validation: The exported data is accurate and reflects the user's account activity.",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:49.483177Z",
+        "wall_end": "2026-05-21T19:35:50.759041Z",
+        "total_tokens": 1271,
+        "prompt_tokens": 1000,
+        "completion_tokens": 271,
+        "total_duration_ms": 1275.8760452270508,
+        "tokens_per_sec": 996.18
+      }
+    },
+    "path_B": {
+      "content": "**Test Case ID:** US-12-TC-01\n**Title:** Export Data Statement Download\n**Preconditions:** User has verified KYC and is logged in to the application.\n\n1. The user navigates to the \"Settings\" section.\n2. The user selects \"Export Data\".\n3. The system displays a list of available data export options (e.g., transaction history, wallet balance).\n4. The user chooses the desired export option.\n5. The system generates and downloads the requested data in machine-readable format.\n\n**Expected Result:** The exported data is successfully downloaded in machine-readable format.\n\n**Priority:** High\n**Test Type:** Positive\n\n**NFRs Covered:**\n\n* Compliance (GDPR/CCPA-compliant data-export coverage)\n* Security (data encryption, secure download mechanism)\n\n**Edge Case:**\n\n* User attempts to export data without verifying KYC.\n\t+ Preconditions: User has not verified KYC and is logged in to the application.\n\t+ Test Steps 1-4 remain the same.\n\t+ Expected Result: The system displays an error message indicating that user must verify KYC before exporting data.\n\n**Performance SLA:**\n\n* Cold start time on baseline device shall not exceed 2.5 seconds.\n\t+ Preconditions: User has selected export option and initiated download process.\n\t+ Test Steps 1-4 remain the same.\n\t+ Expected Result: The system responds within 2.5 seconds to initiate data export.\n\n**Negative Scenario:**\n\n* System fails to generate or download exported data due to network connectivity issues.\n\t+ Preconditions: User has selected export option and initiated download process with stable internet connection.\n\t+ Test Steps 1-4 remain the same.\n\t+ Expected Result: The system displays an error message indicating network connectivity issue.\n\n**Assumptions & Constraints:**\n\n* Minimum 200 MB free device storage at install.\n* Currency conversions shall use the live Core Banking API rate at transaction time.",
+      "metrics": {
+        "wall_start": "2026-05-21T19:35:50.769538Z",
+        "wall_end": "2026-05-21T19:35:52.850558Z",
+        "total_tokens": 1544,
+        "prompt_tokens": 1078,
+        "completion_tokens": 466,
+        "total_duration_ms": 2081.035375595093,
+        "tokens_per_sec": 741.94
+      }
     }
   }
 ]
