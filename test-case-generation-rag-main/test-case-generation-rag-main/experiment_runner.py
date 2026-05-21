@@ -1,77 +1,220 @@
+"""
+Sustainability Scorer — BRD vs Chunking
+
+Reads:
+  outputs/experiment_results.json
+  vm_metrics.csv (optional)
+
+Outputs:
+  outputs/comparison_report.json
+  terminal summary
+"""
+
+import csv
 import json
+import os
+from datetime import datetime
 
-def main():
+# ── CONFIG ───────────────────────────────
+GRID_CARBON_INTENSITY = 713  # gCO2/kWh
 
-    with open("outputs/experiment_results.json", encoding="utf-8") as f:
-        data = json.load(f)
+# ── VM METRICS ───────────────────────────
+def load_vm_metrics(path):
+    if not os.path.exists(path):
+        return []
+
+    with open(path) as f:
+        return list(csv.DictReader(f))
+
+
+def parse_ts(s):
+    if not s:
+        return None
+    try:
+        return datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+    except:
+        return None
+
+
+def resource_window(vm_rows, start, end):
+
+    t0 = parse_ts(start)
+    t1 = parse_ts(end)
+
+    if not t0 or not t1:
+        return {}
+
+    window = []
+
+    for row in vm_rows:
+        ts = parse_ts(row.get("timestamp"))
+        if ts and t0 <= ts <= t1:
+            window.append(row)
+
+    if not window:
+        return {}
+
+    def avg(key):
+        vals = []
+        for r in window:
+            try:
+                vals.append(float(r[key]))
+            except:
+                pass
+        return round(sum(vals)/len(vals), 2) if vals else None
+
+    return {
+        "cpu": avg("cpu_pct"),
+        "gpu": avg("gpu0_util_pct"),
+        "power": avg("gpu0_power_w"),
+    }
+
+
+# ── CORE METRICS ─────────────────────────
+def extract_metrics(data, vm_rows):
 
     total_A_tokens = total_B_tokens = 0
     total_A_time = total_B_time = 0
 
+    cpu_A, cpu_B = [], []
+    gpu_A, gpu_B = [], []
+
+    energy_A = energy_B = 0
+
     for entry in data:
-        total_A_tokens += entry["path_A"]["tokens"]
-        total_B_tokens += entry["path_B"]["tokens"]
-        total_A_time += entry["path_A"]["time"]
-        total_B_time += entry["path_B"]["time"]
 
-    # ✅ ENERGY CALCULATION (playbook)
-    energy_A = (total_A_tokens / 1000) * 0.0003
-    energy_B = (total_B_tokens / 1000) * 0.0003
+        # ✅ correct mapping with your generator
+        mA = entry["path_A"]["metrics"]
+        mB = entry["path_B"]["metrics"]
 
-    co2_A = energy_A * 0.233
-    co2_B = energy_B * 0.233
+        # ✅ tokens
+        total_A_tokens += mA.get("total_tokens", 0)
+        total_B_tokens += mB.get("total_tokens", 0)
 
-    # ✅ % calculations
-    token_reduction = ((total_A_tokens - total_B_tokens)/total_A_tokens)*100 if total_A_tokens else 0
-    energy_reduction = ((energy_A - energy_B)/energy_A)*100 if energy_A else 0
-    time_reduction = ((total_A_time - total_B_time)/total_A_time)*100 if total_A_time else 0
+        # ✅ time
+        total_A_time += mA.get("total_duration_ms", 0)
+        total_B_time += mB.get("total_duration_ms", 0)
 
-    report = {
-        "experiment": "BRD vs Chunking",
-        "model": "llama3.2",
+        # ✅ VM resource mapping
+        rA = resource_window(vm_rows, mA.get("wall_start"), mA.get("wall_end"))
+        rB = resource_window(vm_rows, mB.get("wall_start"), mB.get("wall_end"))
 
-        "totals": {
-            "tokens": {
-                "BRD": total_A_tokens,
-                "Chunking": total_B_tokens
-            },
-            "time_ms": {
-                "BRD": round(total_A_time,2),
-                "Chunking": round(total_B_time,2)
-            },
-            "energy_wh": {
-                "BRD": round(energy_A,6),
-                "Chunking": round(energy_B,6)
-            },
-            "co2_g": {
-                "BRD": round(co2_A,6),
-                "Chunking": round(co2_B,6)
-            }
-        },
+        if rA.get("cpu"):
+            cpu_A.append(rA["cpu"])
+        if rB.get("cpu"):
+            cpu_B.append(rB["cpu"])
 
-        "improvements": {
-            "token_reduction_percent": round(token_reduction,2),
-            "energy_reduction_percent": round(energy_reduction,2),
-            "time_reduction_percent": round(time_reduction,2)
-        },
+        if rA.get("gpu"):
+            gpu_A.append(rA["gpu"])
+        if rB.get("gpu"):
+            gpu_B.append(rB["gpu"])
 
-        "verdict": "Chunking is more efficient than BRD in terms of tokens, energy, and performance."
+        # ✅ energy (power * time)
+        power_A = rA.get("power") or 0
+        power_B = rB.get("power") or 0
+
+        time_A = mA.get("total_duration_ms", 0) / 1000
+        time_B = mB.get("total_duration_ms", 0) / 1000
+
+        energy_A += (power_A * time_A) / 3600
+        energy_B += (power_B * time_B) / 3600
+
+    return {
+        "tokens_A": total_A_tokens,
+        "tokens_B": total_B_tokens,
+        "time_A": total_A_time,
+        "time_B": total_B_time,
+        "cpu_A": round(sum(cpu_A)/len(cpu_A), 2) if cpu_A else None,
+        "cpu_B": round(sum(cpu_B)/len(cpu_B), 2) if cpu_B else None,
+        "gpu_A": round(sum(gpu_A)/len(gpu_A), 2) if gpu_A else None,
+        "gpu_B": round(sum(gpu_B)/len(gpu_B), 2) if gpu_B else None,
+        "energy_A": round(energy_A, 4),
+        "energy_B": round(energy_B, 4),
     }
 
-    with open("outputs/comparison_report.json", "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
 
-    # ✅ Print summary
-    print("\n✅ FINAL SUMMARY")
-    print(f"Tokens → BRD: {total_A_tokens} | Chunking: {total_B_tokens}")
-    print(f"Energy → BRD: {round(energy_A,6)} | Chunking: {round(energy_B,6)}")
-    print(f"CO2 → BRD: {round(co2_A,6)} | Chunking: {round(co2_B,6)}")
+# ── REPORT ───────────────────────────────
+def print_report(m):
 
-    print(f"\n✅ Token Reduction: {round(token_reduction,2)}%")
-    print(f"✅ Energy Reduction: {round(energy_reduction,2)}%")
-    print(f"✅ Speed Improvement: {round(time_reduction,2)}%")
+    print("\n" + "="*70)
+    print(" EXPERIMENT REPORT — BRD vs CHUNKING")
+    print("="*70)
 
-    print("\n✅ Report saved → outputs/comparison_report.json")
+    print("\n📊 TOKENS")
+    print(f"BRD: {m['tokens_A']}")
+    print(f"Chunking: {m['tokens_B']}")
+    print(f"Saved: {m['tokens_A'] - m['tokens_B']} ✅")
+
+    print("\n⏱ TIME (ms)")
+    print(f"BRD: {m['time_A']}")
+    print(f"Chunking: {m['time_B']}")
+
+    print("\n💻 CPU (avg)")
+    print(f"BRD: {m['cpu_A']}")
+    print(f"Chunking: {m['cpu_B']}")
+
+    print("\n🎮 GPU (avg)")
+    print(f"BRD: {m['gpu_A']}")
+    print(f"Chunking: {m['gpu_B']}")
+
+    print("\n⚡ ENERGY (Wh)")
+    print(f"BRD: {m['energy_A']}")
+    print(f"Chunking: {m['energy_B']}")
+    print(f"Saved: {round(m['energy_A'] - m['energy_B'], 4)} ✅")
+
+    co2_A = m["energy_A"]/1000 * GRID_CARBON_INTENSITY
+    co2_B = m["energy_B"]/1000 * GRID_CARBON_INTENSITY
+
+    print("\n🌱 CO₂")
+    print(f"BRD: {round(co2_A,4)} g")
+    print(f"Chunking: {round(co2_B,4)} g")
+
+    print("\n✅ FINAL VERDICT")
+
+    if m["tokens_B"] < m["tokens_A"]:
+        print("✔ Chunking reduces tokens ✅")
+
+    if m["energy_B"] < m["energy_A"]:
+        print("✔ Chunking is more energy efficient ✅")
+
+    print("="*70)
+
+
+# ── MAIN ───────────────────────────────
+def main():
+
+    results_file = "outputs/experiment_results.json"
+    vm_file = "vm_metrics.csv"
+
+    if not os.path.exists(results_file):
+        print("❌ No experiment_results.json found in outputs folder")
+        return
+
+    with open(results_file) as f:
+        data = json.load(f)
+
+    vm_rows = load_vm_metrics(vm_file)
+
+    print(f"Loaded {len(data)} user stories")
+    print(f"VM samples: {len(vm_rows)}")
+
+    metrics = extract_metrics(data, vm_rows)
+
+    print_report(metrics)
+
+    # ✅ SAVE JSON REPORT
+    final_report = {
+        "tokens": {"BRD": metrics["tokens_A"], "Chunking": metrics["tokens_B"]},
+        "time_ms": {"BRD": metrics["time_A"], "Chunking": metrics["time_B"]},
+        "cpu": {"BRD": metrics["cpu_A"], "Chunking": metrics["cpu_B"]},
+        "gpu": {"BRD": metrics["gpu_A"], "Chunking": metrics["gpu_B"]},
+        "energy_wh": {"BRD": metrics["energy_A"], "Chunking": metrics["energy_B"]}
+    }
+
+    with open("outputs/comparison_report.json", "w") as f:
+        json.dump(final_report, f, indent=2)
+
+    print("\n✅ comparison_report.json saved")
 
 
 if __name__ == "__main__":
