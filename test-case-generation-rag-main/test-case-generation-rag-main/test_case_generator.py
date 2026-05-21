@@ -55,16 +55,45 @@ TEXTS = [
 
 FULL_BRD_CONTEXT = read_docx("data/01_BRD_SwiftPay_v2.docx")[:4000]
 
-SYSTEM_PROMPT = "Generate detailed QA test cases"
+SYSTEM_PROMPT = (
+    "You are a Senior QA Engineer.\n\n"
+    "Your task is to generate detailed and structured test cases based on the given requirements context and user story.\n\n"
 
-# ── GENERATOR FUNCTION ✅ (THIS IS YOUR CORE)
-def generate_test_cases(user_story, context):
+    "STRICT INSTRUCTIONS:\n"
+    "1. Always generate test cases in a structured and consistent format.\n"
+    "2. Do NOT add explanations, comments, or extra text.\n"
+    "3. Use clear, concise, and professional language.\n\n"
+
+    "Each test case MUST include:\n"
+    "- Test Case ID\n"
+    "- Title\n"
+    "- Preconditions\n"
+    "- Test Steps (numbered)\n"
+    "- Expected Result\n"
+    "- Priority (High/Medium/Low)\n"
+    "- Test Type (Positive / Negative / Edge / NFR)\n\n"
+
+    "Coverage requirements:\n"
+    "- Include Positive scenarios\n"
+    "- Include Negative scenarios\n"
+    "- Include Edge cases\n"
+    "- Include Non-functional scenarios (performance, security, validation)\n\n"
+
+    "Constraints:\n"
+    "- Follow the given requirements context strictly\n"
+    "- Do not assume missing data\n"
+    "- Do not hallucinate features\n"
+    "- Keep output precise and structured\n"
+)
+
+
+def generate_test_cases(user_story, model, context):
 
     start_time = time.time()
 
     try:
         response = client.chat(
-            model=MODELS[0],
+            model=model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": context + "\n" + user_story}
@@ -72,30 +101,27 @@ def generate_test_cases(user_story, context):
             options={"temperature": 0.2, "num_predict": 700}
         )
 
-        # ✅ SAFE CONTENT EXTRACTION
         content = ""
         if hasattr(response, "message") and response.message:
             content = response.message.content
         elif hasattr(response, "response"):
             content = response.response
 
-        # ✅ TOKEN CALCULATION
+        # ✅ token calc
         input_tokens = max(len(context)//4, 50)
         output_tokens = max(len(content)//4, 20)
         total_tokens = input_tokens + output_tokens
 
-        # ✅ TIME
+        # ✅ time
         total_duration_ms = (time.time() - start_time) * 1000
 
-        # ✅ THROUGHPUT
+        # ✅ throughput
         tokens_per_sec = round(total_tokens / (total_duration_ms / 1000), 2) if total_duration_ms > 0 else 0
 
         return {
             "content": content,
             "metrics": {
                 "total_tokens": total_tokens,
-                "prompt_tokens": input_tokens,
-                "completion_tokens": output_tokens,
                 "total_duration_ms": total_duration_ms,
                 "tokens_per_sec": tokens_per_sec
             }
@@ -123,8 +149,8 @@ def run_analysis(model):
 
     for i, story in enumerate(TEXTS, 1):
 
-        result_a = generate_test_cases(story, FULL_BRD_CONTEXT)
-        result_b = generate_test_cases(story, get_chunk_context(story))
+        result_a = generate_test_cases(story, model, FULL_BRD_CONTEXT)
+        result_b = generate_test_cases(story, model, get_chunk_context(story))
 
         mA = result_a["metrics"]
         mB = result_b["metrics"]
@@ -135,10 +161,47 @@ def run_analysis(model):
             "path_B": result_b
         })
 
-        print(f"{i} A Tokens: {mA['total_tokens']} Time: {round(mA['total_duration_ms'],2)} ms")
-        print(f"{i} B Tokens: {mB['total_tokens']} Time: {round(mB['total_duration_ms'],2)} ms")
+        # ✅ BRD vs Chunking labels
+        print(f"{i} BRD → Tokens: {mA['total_tokens']} Time: {round(mA['total_duration_ms'],2)} ms")
+        print(f"{i} Chunking → Tokens: {mB['total_tokens']} Time: {round(mB['total_duration_ms'],2)} ms")
 
     return results
+
+# ── SUMMARY ✅ (YOU WANTED THIS BACK)
+def print_summary(model, results):
+
+    total_A = total_B = 0
+    time_A = time_B = 0
+
+    for r in results:
+        mA = r["path_A"]["metrics"]
+        mB = r["path_B"]["metrics"]
+
+        total_A += mA.get("total_tokens", 0)
+        total_B += mB.get("total_tokens", 0)
+
+        time_A += mA.get("total_duration_ms", 0)
+        time_B += mB.get("total_duration_ms", 0)
+
+    print("\n" + "="*60)
+    print(" FINAL SUMMARY")
+    print("="*60)
+
+    print("\n📊 Tokens")
+    print(f"BRD: {total_A}")
+    print(f"Chunking: {total_B}")
+    print(f"Saved: {total_A - total_B} ✅")
+
+    print("\n⏱ Time")
+    print(f"BRD: {round(time_A,2)} ms")
+    print(f"Chunking: {round(time_B,2)} ms")
+
+    energy_A = total_A * 0.00013
+    energy_B = total_B * 0.00013
+
+    print("\n⚡ Energy")
+    print(f"BRD: {round(energy_A,6)} Wh")
+    print(f"Chunking: {round(energy_B,6)} Wh")
 
 # ── MAIN ─────────────────────────────────────────────
 def main():
@@ -149,10 +212,14 @@ def main():
 
     results = run_analysis(MODELS[0])
 
+    print_summary(MODELS[0], results)   # ✅ BACK AGAIN
+
     with open("outputs/experiment_results.json", "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
 
-    print("\n✅ Results saved")
+    print("\n✅ Results saved → outputs/experiment_results.json")
+
 
 if __name__ == "__main__":
     main()
+
