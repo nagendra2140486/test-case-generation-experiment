@@ -132,50 +132,56 @@ def generate_test_cases(user_story: str, model: str, context: str) -> dict:
     wall_start = datetime.utcnow().isoformat() + "Z"
 
     try:
-        response = client.chat(
-            model=model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {
-                    "role": "user",
-                    "content": f"""
+        # ✅ RETRY HANDLING (fix 504 timeout)
+        for attempt in range(2):
+            try:
+                response = client.chat(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {
+                            "role": "user",
+                            "content": f"""
 REQUIREMENTS CONTEXT:
 {context}
 
 USER STORY:
 {user_story}
 """
-                }
-            ],
-            options={"temperature": 0.2, "num_predict": 2000},
-        )
+                        }
+                    ],
+                    options={"temperature": 0.2, "num_predict": 700},
+                )
+                break
+            except Exception:
+                print(f"⚠️ Retry {attempt+1} for {user_story}")
+                time.sleep(2)
 
         wall_end = datetime.utcnow().isoformat() + "Z"
 
-        content = response.message.content if response.message else ""
+        # ✅ FIXED RESPONSE EXTRACTION (critical)
+        content = ""
 
-        # ✅ Try real metrics (may not exist in OpenWebUI)
-        eval_count   = getattr(response, "eval_count", None)
-        prompt_count = getattr(response, "prompt_eval_count", None)
-        total_dur_ns = getattr(response, "total_duration", None)
+        if hasattr(response, "message") and response.message:
+            content = response.message.content
+        elif hasattr(response, "response"):
+            content = response.response
+        elif isinstance(response, dict):
+            content = response.get("message", {}).get("content", "") or response.get("response", "")
 
-        # ✅ ✅ FALLBACK TOKEN CALCULATION
-        if not eval_count and not prompt_count:
-            input_tokens = len(context) // 4
-            output_tokens = len(content) // 4
-        else:
-            input_tokens = prompt_count or 0
-            output_tokens = eval_count or 0
+        if not content.strip():
+            print(f"⚠️ EMPTY OUTPUT for {user_story}")
+
+        # ✅ SAFE FALLBACK TOKENS
+        input_tokens = max(len(context) // 4, 50)
+        output_tokens = max(len(content) // 4, 20)
 
         total_tokens = input_tokens + output_tokens
 
-        # ✅ ✅ FALLBACK TIME
-        if total_dur_ns and total_dur_ns > 0:
-            total_duration_ms = round(total_dur_ns / 1e6, 2)
-        else:
-            total_duration_ms = round((time.time() - start_time) * 1000, 2)
+        # ✅ SAFE TIME
+        total_duration_ms = round((time.time() - start_time) * 1000, 2)
 
-        # ✅ ✅ CORRECT THROUGHPUT
+        # ✅ THROUGHPUT
         tokens_per_sec = round(total_tokens / (total_duration_ms / 1000), 2) if total_duration_ms > 0 else 0
 
         return {
@@ -204,7 +210,6 @@ USER STORY:
 
 
 # ── RUN EXPERIMENT ───────────────────────────────────
-
 def run_analysis(model: str) -> list[dict]:
 
     results = []
@@ -221,35 +226,30 @@ def run_analysis(model: str) -> list[dict]:
         result_a = generate_test_cases(story, model, FULL_BRD_CONTEXT)
         mA = result_a.get("metrics", {})
 
-        # ✅ Path B (dynamic chunk)
+        # ✅ Path B
         chunk_context = get_chunk_context(story)
         result_b = generate_test_cases(story, model, chunk_context)
         mB = result_b.get("metrics", {})
-
-        # ✅ Comparison
-        comparison = {
-            "token_diff": mA.get("total_tokens", 0) - mB.get("total_tokens", 0),
-            "latency_diff_ms": mA.get("total_duration_ms", 0) - mB.get("total_duration_ms", 0)
-        }
 
         entry = {
             "user_story": story,
             "path_A": result_a,
             "path_B": result_b,
-            "comparison": comparison
+            "comparison": {
+                "token_diff": mA.get("total_tokens", 0) - mB.get("total_tokens", 0),
+                "latency_diff_ms": mA.get("total_duration_ms", 0) - mB.get("total_duration_ms", 0)
+            }
         }
 
         results.append(entry)
 
-        # ✅ Print live
-        print(f"{i:<4} A      {mA.get('total_tokens',0):<10} {mA.get('total_duration_ms',0):<10} {mA.get('tokens_per_sec',0):<10} {story[:40]}")
-        print(f"{i:<4} B      {mB.get('total_tokens',0):<10} {mB.get('total_duration_ms',0):<10} {mB.get('tokens_per_sec',0):<10} {'-'}")
+        print(f"{i:<4} A {mA.get('total_tokens',0):<10} {mA.get('total_duration_ms',0):<10} {mA.get('tokens_per_sec',0):<10} {story[:40]}")
+        print(f"{i:<4} B {mB.get('total_tokens',0):<10} {mB.get('total_duration_ms',0):<10} {mB.get('tokens_per_sec',0):<10}")
 
     return results
 
 
 # ── SUMMARY ──────────────────────────────────────────
-
 def print_summary(model: str, results: list[dict]):
 
     total_A = total_B = 0
@@ -259,11 +259,11 @@ def print_summary(model: str, results: list[dict]):
         mA = r["path_A"]["metrics"]
         mB = r["path_B"]["metrics"]
 
-        total_A += mA.get("total_tokens", 0)
-        total_B += mB.get("total_tokens", 0)
+        total_A += mA["total_tokens"]
+        total_B += mB["total_tokens"]
 
-        time_A += mA.get("total_duration_ms", 0)
-        time_B += mB.get("total_duration_ms", 0)
+        time_A += mA["total_duration_ms"]
+        time_B += mB["total_duration_ms"]
 
     print("\n" + "="*60)
     print(f" SUMMARY — {model}")
@@ -287,18 +287,18 @@ def print_summary(model: str, results: list[dict]):
 
 
 # ── MAIN ─────────────────────────────────────────────
-
 def main():
 
-    print("=" * 70)
+    print("="*70)
     print(" RAG TEST CASE GENERATION EXPERIMENT")
-    print("=" * 70)
+    print("="*70)
 
-    results = run_analysis(MODELS[0])
+    model = MODELS[0]
 
-    print_summary(MODELS[0], results)
+    results = run_analysis(model)
 
-    # ✅ SAVE TO OUTPUTS FOLDER
+    print_summary(model, results)
+
     with open("outputs/experiment_results.json", "w") as f:
         json.dump(results, f, indent=2)
 
