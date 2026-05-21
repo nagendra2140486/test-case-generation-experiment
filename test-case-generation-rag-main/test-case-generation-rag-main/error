@@ -1,0 +1,27 @@
+[
+  {
+    "user_story": "US-01: As a new user, I want to register using my mobile number so that I can create an account.",
+    "path_A": {
+      "content": "error",
+      "metrics": {
+        "total_tokens": 0,
+        "total_duration_ms": 0,
+        "tokens_per_sec": 0
+      },
+      "error": "<html>\r\n<head><title>504 Gateway Time-out</title></head>\r\n<body>\r\n<center><h1>504 Gateway Time-out</h1></center>\r\n<hr><center>nginx/1.24.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n (status code: 504)"
+    },
+    "path_B": {
+      "content": "error",
+      "metrics": {
+        "total_tokens": 0,
+        "total_duration_ms": 0,
+        "tokens_per_sec": 0
+      },
+      "error": "<html>\r\n<head><title>504 Gateway Time-out</title></head>\r\n<body>\r\n<center><h1>504 Gateway Time-out</h1></center>\r\n<hr><center>nginx/1.24.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n (status code: 504)"
+    },
+    "comparison": {
+      "token_diff": 0,
+      "latency_diff_ms": 0
+    }
+  }
+]
